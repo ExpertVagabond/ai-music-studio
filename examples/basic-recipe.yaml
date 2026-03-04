@@ -1,0 +1,33 @@
+# AI Music Studio — Batch Recipe Example
+# Run with: studio batch examples/basic-recipe.yaml
+
+output_dir: ~/Desktop/AI-Music/batch
+
+jobs:
+  - name: dark-trap
+    prompt: "dark minimal trap beat, heavy 808s, distorted bass, hi-hats"
+    duration: 30
+    model: small
+    stems: true
+
+  - name: chill-lofi
+    prompt: "lo-fi chill hip hop beat, jazzy piano, vinyl crackle, mellow drums"
+    duration: 20
+    model: small
+
+  - name: cinematic-epic
+    prompt: "epic cinematic orchestral trailer, building tension, brass and strings"
+    duration: 15
+    model: small
+    stems: true
+    mix:
+      layers:
+        - stem: drums
+          volume: 0dB
+        - stem: bass
+          volume: -2dB
+        - stem: other
+          volume: -4dB
+      fade_in: 2
+      fade_out: 3
+      normalize: true
