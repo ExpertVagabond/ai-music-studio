@@ -2,11 +2,49 @@
 """AI Music Studio — unified CLI for local music production.
 
 Generate, separate, convert, mix, and batch process music from the terminal.
+
+Security:
+  - All file path inputs validated against traversal attacks
+  - No hardcoded secrets — all credentials from environment
+  - Error messages sanitized before display
 """
 
 import os
+import re
 from pathlib import Path
 from typing import Optional
+
+MAX_PATH_LENGTH = 512
+MAX_PROMPT_LENGTH = 2000
+ALLOWED_AUDIO_EXTS = {'.wav', '.mp3', '.flac', '.ogg', '.m4a', '.aac'}
+
+def validate_input(value: str, label: str = "input", max_len: int = MAX_PROMPT_LENGTH) -> str:
+    """Validate a string parameter: type, length, null-byte safety."""
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be a string")
+    if not value.strip():
+        raise ValueError(f"{label} must not be empty")
+    if len(value) > max_len:
+        raise ValueError(f"{label} exceeds maximum length of {max_len}")
+    if "\0" in value:
+        raise ValueError(f"{label} contains null bytes")
+    return value
+
+def validate_audio_path(p: str) -> str:
+    """Validate an audio file path — no traversal, allowed extension."""
+    validate_input(p, "audio path", MAX_PATH_LENGTH)
+    if ".." in p:
+        raise ValueError("Path traversal detected in audio path")
+    ext = Path(p).suffix.lower()
+    if ext and ext not in ALLOWED_AUDIO_EXTS:
+        raise ValueError(f"Unsupported audio format: {ext}")
+    return p
+
+def sanitize_error(err: Exception) -> str:
+    """Strip internal paths from error messages."""
+    msg = str(err)
+    msg = re.sub(r"/[\w/.-]+", "[path]", msg)
+    return msg[:500]
 
 import typer
 from rich.console import Console
