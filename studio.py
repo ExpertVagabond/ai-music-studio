@@ -68,6 +68,7 @@ def generate(
     output: Optional[str] = typer.Option(None, "--output", "-o", help="Output filename"),
 ):
     """Generate instrumental music from a text prompt using MusicGen."""
+    validate_input(prompt, "prompt")
     from lib.generate import generate_music
 
     generate_music(prompt, duration, model, output)
